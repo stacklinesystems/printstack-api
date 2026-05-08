@@ -4,9 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PrinterController;
 use App\Http\Controllers\PrintJobController;
 use App\Models\Printer;
-use App\Models\PrintJob;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -86,5 +84,7 @@ Route::prefix('v1')->group(function () {
                 'auth' => env('PUSHER_APP_KEY') . ':' . $signature
             ]);
         });
+
+        Route::post('/print-jobs', [PrintJobController::class, 'store']);
     });
 });
