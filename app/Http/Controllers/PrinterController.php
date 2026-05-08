@@ -93,13 +93,13 @@ class PrinterController extends Controller
             Printer::updateOrCreate(
                 [
                     'device_id' => $device->id,
-                    'name' => $printer->name
+                    'name' => $printer['name']
                 ],
                 [
-                    'fingerprint' => $printer->fingerprint,
-                    'is_default' => $printer->is_default ?? false,
-                    'is_active' => $printer->is_active ?? true,
-                    'is_online' => $printer->is_online ?? 'unknown'
+                    'fingerprint' => $printer['fingerprint'] ?? null,
+                    'is_default' => $printer['is_default'] ?? false,
+                    'is_active' => $printer['is_active'] ?? true,
+                    'is_online' => $printer['is_online'] ?? 'unknown'
                 ]
             );
         }
