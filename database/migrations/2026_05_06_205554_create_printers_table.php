@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('connection')->nullable(); // usb, network, smb, etc
             $table->string('address')->nullable(); // IP or path
+            $table->string('fingerprint')->unique();
             $table->boolean('is_default')->default(false);
             $table->boolean('is_active')->default(true);
             $table->boolean('is_online')->default(true);

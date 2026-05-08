@@ -11,6 +11,7 @@ class Printer extends Model
         'name',
         'connection',
         'address',
+        'fingerprint',
         'is_default',
         'is_active',
         'is_online'

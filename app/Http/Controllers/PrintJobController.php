@@ -15,27 +15,64 @@ class PrintJobController extends Controller
             ->get();
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, PrintJob $printJob)
     {
-        $job = PrintJob::findOrFail($id);
+        $request->validate([
+            'status' => 'required|string'
+        ]);
 
-        if ($job->status === 'done') {
-            return response()->json(['error' => 'Job already completed'], 409);
+        $status = $request->status;
+
+        $allowed = [
+            'received',
+            'processing',
+            'printed',
+            'acknowledged',
+            'failed'
+        ];
+
+        if (!in_array($status, $allowed)) {
+
+            return response()->json([
+                'success' => false
+            ], 422);
         }
 
-        $request->validate([
-            'status' => 'required|in:pending,processing,done,failed'
-        ]);
+        $data = [
+            'status' => $status,
+            'attempts' => $printJob->attempts + 1
+        ];
 
-        $job->update([
-            'status' => $request->status,
-            'attempts' => $job->attempts + 1
-        ]);
+        switch ($status) {
+
+            case 'received':
+                $data['received_at'] = now();
+                break;
+
+            case 'processing':
+                $data['processing_at'] = now();
+                break;
+
+            case 'printed':
+                $data['printed_at'] = now();
+                break;
+
+            case 'acknowledged':
+                $data['acknowledged_at'] = now();
+                break;
+        }
+
+        if ($status === 'failed') {
+            $data['failure_reason'] =
+                $request->failure_reason;
+        }
+
+        $printJob->update($data);
 
         return response()->json([
             'success' => true,
-            'job_id' => $job->id,
-            'status' => $job->status
+            'job_id' => $printJob->id,
+            'status' => $printJob->status
         ]);
     }
 }

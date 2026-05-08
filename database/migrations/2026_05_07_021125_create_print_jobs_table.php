@@ -19,10 +19,25 @@ return new class extends Migration
             $table->string('type'); // raw, pdf, label
             $table->longText('content');
 
-            $table->string('status')->default('pending');
+            $table->enum('status', [
+                'queued',
+                'sent',
+                'received',
+                'processing',
+                'printed',
+                'acknowledged',
+                'failed'
+            ])->default('queued');
+
             $table->integer('attempts')->default(0);
 
             $table->string('idempotency_key')->nullable();
+
+            $table->timestamp('received_at')->nullable();
+            $table->timestamp('processing_at')->nullable();
+            $table->timestamp('printed_at')->nullable();
+            $table->timestamp('acknowledged_at')->nullable();
+            $table->text('failure_reason')->nullable();
 
             $table->timestamps();
         });

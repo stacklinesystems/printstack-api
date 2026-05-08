@@ -18,13 +18,11 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
 
-        Route::get('/printers', function () {
-            return response()->json([
-                'printers' => Printer::all()
-            ]);
-        });
+        Route::get('/printers', [PrinterController::class, 'index']);
 
         Route::post('/printers', [PrinterController::class, 'store']);
+
+        Route::post('/printers/sync', [PrinterController::class, 'sync']);
 
         Route::put('/printers/{id}', [PrinterController::class, 'update']);
 
