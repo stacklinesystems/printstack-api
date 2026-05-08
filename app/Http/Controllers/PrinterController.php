@@ -12,14 +12,17 @@ class PrinterController extends Controller
     public function index(Request $request)
     {
         $deviceName = $request->header('X-Device-Name');
+
         $device = Device::where('name', $deviceName)->first();
+
         if (!$device) {
             return response()->json([
                 'printers' => []
             ]);
         }
+
         return response()->json([
-            'printers' => Printer::where('device_id', $device->id)->all()
+            'printers' => Printer::where('device_id', $device->id)->get()
         ]);
     }
 
@@ -90,13 +93,13 @@ class PrinterController extends Controller
             Printer::updateOrCreate(
                 [
                     'device_id' => $device->id,
-                    'name' => $request->name
+                    'name' => $printer->name
                 ],
                 [
-                    'fingerprint' => $request->fingerprint,
-                    'is_default' => $request->is_default ?? false,
-                    'is_active' => $request->is_active ?? true,
-                    'is_online' => $request->is_online ?? 'unknown'
+                    'fingerprint' => $printer->fingerprint,
+                    'is_default' => $printer->is_default ?? false,
+                    'is_active' => $printer->is_active ?? true,
+                    'is_online' => $printer->is_online ?? 'unknown'
                 ]
             );
         }
