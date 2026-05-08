@@ -10,13 +10,13 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        // 1. Validate input
+        // 1. Validate only auth fields (device is optional)
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        // 2. Check credentials
+        // 2. Authenticate
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Invalid credentials'
@@ -25,25 +25,32 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // 3. Create / update device (computer)
-        $device = Device::updateOrCreate(
-            [
-                'name' => $request->device_name,
-            ],
-            [
-                'user_id' => $user->id,
-                'is_online' => true,
-                'last_seen' => now()
-            ]
-        );
+        $device = null;
 
-        // 4. Create Sanctum token (device-based)
-        $token = $user->createToken($request->device_name)->plainTextToken;
+        // 3. ONLY create/update device if provided
+        if ($request->filled('device_name')) {
+
+            $device = Device::updateOrCreate(
+                [
+                    'name' => $request->device_name,
+                ],
+                [
+                    'user_id' => $user->id,
+                    'is_online' => true,
+                    'last_seen' => now()
+                ]
+            );
+        }
+
+        // 4. Token (still works without device)
+        $tokenName = $request->device_name ?? 'api-token';
+
+        $token = $user->createToken($tokenName)->plainTextToken;
 
         // 5. Response
         return response()->json([
             'user' => $user,
-            'device' => $device,
+            'device' => $device, // null if not provided
             'token' => $token
         ]);
     }
